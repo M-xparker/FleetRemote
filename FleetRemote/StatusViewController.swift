@@ -23,7 +23,6 @@ class StatusViewController:UIViewController, UITableViewDataSource, UITableViewD
         super.viewDidLoad()
         self.navigationItem.title = service.name
         requester.statusForService(service.name, self.updateStatus)
-        requester.logsForService(service.name, callback: self.updateLogs)
         
         self.tableView.registerClass(LogCell.self, forCellReuseIdentifier: LogCell.CellIdentifier())
         self.tableView.dataSource = self
@@ -38,6 +37,7 @@ class StatusViewController:UIViewController, UITableViewDataSource, UITableViewD
     func updateStatus(status:String){
         self.status = status
         self.statusLabel.text = self.status
+        requester.logsForService(service.name, callback: self.updateLogs)
     }
     func updateLogs(logs:[Log]){
         self.logs = logs

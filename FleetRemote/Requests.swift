@@ -9,7 +9,7 @@
 import Foundation
 
 protocol Requestor{
-    func connectTo(host h:String,port p:Int)
+    func connectTo(host h:String,port p:Int, username u:String)
     func services(refresh:Bool,callback:([Service])->Void)
     func statusForService(serviceName: String, callback:(String)->Void)
     func logsForService(serviceName: String, callback:([Log])->Void)
@@ -29,7 +29,7 @@ class MockRequestor: Requestor{
     var port:Int = 0
     
     
-    func connectTo(host h: String, port p: Int) {
+    func connectTo(host h: String, port p: Int, username u:String) {
         
     }
     

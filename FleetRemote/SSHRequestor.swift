@@ -14,6 +14,7 @@ class SSHRequestor: Requestor{
     let mainQueue = NSOperationQueue.mainQueue()
     var host:String = ""
     var port:Int = 0
+    var username:String = ""
     
     private var session:NMSSHSession?
     
@@ -21,12 +22,11 @@ class SSHRequestor: Requestor{
         
     }
     
-    func connectTo(host h: String, port p: Int) {
+    func connectTo(host h: String, port p: Int, username u:String) {
         self.port = p
         self.host = h
+        self.username = u
         session = nil
-        //        let connectOp = self.connectToOperation(host: h, port: p)
-        //        self.backgroundQueue.addOperation(connectOp)
     }
     
     func services(refresh:Bool, callback:([Service])->Void){
@@ -54,10 +54,12 @@ class SSHRequestor: Requestor{
     private func queueOp(op:NSOperation){
         if let sesh = self.session{
             if !sesh.connected{
+                println("not connected")
                 let connectOp = reconnect()
                 op.addDependency(connectOp)
             }
         } else{
+            println("no sesh")
             let connectOp = reconnect()
             op.addDependency(connectOp)
         }
@@ -65,14 +67,14 @@ class SSHRequestor: Requestor{
         self.backgroundQueue.addOperation(op)
     }
     
-    private func connectToOperation(host h:String, port p:Int)->NSOperation{
+    private func connectToOperation(host h:String, port p:Int, username u:String)->NSOperation{
         let op = NSBlockOperation()
         op.addExecutionBlock({
             if h.isEmpty || p == 0{
                 op.cancel()
                 return
             }
-            self.session = NMSSHSession.connectToHost(h, port: p, withUsername: "core")
+            self.session = NMSSHSession.connectToHost(h, port: p, withUsername: u)
             if let sesh = self.session{
                 if sesh.connected{
                     let keyPath = NSBundle.mainBundle().pathForResource("private_key", ofType: nil)
@@ -94,7 +96,7 @@ class SSHRequestor: Requestor{
     }
     
     private func reconnect()->NSOperation{
-        let connectOp = self.connectToOperation(host: self.host, port: self.port)
+        let connectOp = self.connectToOperation(host: self.host, port: self.port, username: self.username)
         self.backgroundQueue.addOperation(connectOp)
         return connectOp
     }
@@ -108,15 +110,14 @@ class SSHRequestor: Requestor{
                     var error:NSError?
                     var command = "fleetctl list-units | awk 'NR > 2 { printf(\",\") } BEGIN{printf \"[\"}{if (NR!=1) printf(\"{\\\"unit\\\":\\\"%s\\\",\\\"dstate\\\":\\\"%s\\\",\\\"tmachine\\\":\\\"%s\\\",\\\"state\\\":\\\"%s\\\",\\\"machine\\\":\\\"%s\\\",\\\"active\\\":\\\"%s\\\"}\", $1, $2, $3, $4, $5, $6) }END{print \"]\"}'"
                     let result = sesh.channel.execute(command, error: &error)
+                    var resp: [NSDictionary] = NSJSONSerialization.JSONObjectWithData(result.dataUsingEncoding(NSUTF8StringEncoding, allowLossyConversion: true), options: NSJSONReadingOptions.MutableContainers, error: &error) as Array<NSDictionary>
+                    
+                    var s:[Service] = []
+                    for dict in resp{
+                        s.append(Service(dict:dict))
+                    }
                     self.mainQueue.addOperationWithBlock({
-                        var resp: [NSDictionary] = NSJSONSerialization.JSONObjectWithData(result.dataUsingEncoding(NSUTF8StringEncoding, allowLossyConversion: true), options: NSJSONReadingOptions.MutableContainers, error: &error) as Array<NSDictionary>
-                        
-                        var s:[Service] = []
-                        for dict in resp{
-                            s.append(Service(dict:dict))
-                        }
                         callback(s)
-                        
                         if let err = error{
                             println(err.userInfo)
                         }
@@ -131,11 +132,21 @@ class SSHRequestor: Requestor{
     private func statusOperation(serviceName:String,callback:(String)->Void)->NSOperation{
         let op = NSBlockOperation()
         op.addExecutionBlock({
-            self.mainQueue.addOperationWithBlock({
-                var s = "● myappd.service - MyApp\nLoaded: loaded (/run/fleet/units/myappd.service; linked-runtime)\nActive: active (running) since Thu 2014-08-07 18:37:58 UTC; 1h 29min ago\nProcess: 11569 ExecStartPre=/usr/bin/docker pull busybox (code=exited, status=0/SUCCESS)\nProcess: 11562 ExecStartPre=/usr/bin/docker rm busybox1 (code=exited, status=0/SUCCESS)\nProcess: 11553 ExecStartPre=/usr/bin/docker kill busybox1 (code=exited, status=0/SUCCESS)\nMain PID: 11585 (docker)\nCGroup: /system.slice/myappd.service\n└─11585 /usr/bin/docker run --name busybox1 busybox /bin/sh -c while true; do echo Hello World; sleep 1; done"
-                callback(s)
+            if let sesh = self.session{
                 
-            })
+                if sesh.authorized{
+                    var error:NSError?
+                    var command = "fleetctl status " + serviceName + " | awk '{if(NR<10)print($0)}'"
+                    let result = sesh.channel.execute(command, error: &error)
+                    self.mainQueue.addOperationWithBlock({
+                        callback(result)
+                        if let err = error{
+                            println(err.userInfo)
+                        }
+                    })
+                    
+                }
+            }
         })
         return op
     }
@@ -143,9 +154,27 @@ class SSHRequestor: Requestor{
     private func logsOperation(serviceName:String, numberOfLines:Int, callback:([Log])->Void)->NSOperation{
         let op = NSBlockOperation()
         op.addExecutionBlock({
-            self.mainQueue.addOperationWithBlock({
-                callback([Log(message:"hi")])
-            })
+            if let sesh = self.session{
+                
+                if sesh.authorized{
+                    var error:NSError?
+                    var command = "fleetctl journal " + serviceName + " | awk 'NR > 2 { printf(\",\") }BEGIN{printf \"[\"} NR > 1{printf(\"{\\\"month\\\":\\\"%s\\\",\\\"day\\\":\\\"%s\\\",\\\"time\\\":\\\"%s\\\",\\\"host\\\":\\\"%s\\\",\\\"log\\\":\\\"\",$1,$2,$3,$4);$1=$2=$3=$4=$5=\"\";gsub(/\\r/,\"\",$0);sub(/     /,\"\");printf(\"%s\\\"}\",$0)}END{printf \"]\"}'"
+                    let result = sesh.channel.execute(command, error: &error)
+                    var resp: [NSDictionary] = NSJSONSerialization.JSONObjectWithData(result.dataUsingEncoding(NSUTF8StringEncoding, allowLossyConversion: true), options: NSJSONReadingOptions.MutableContainers, error: &error) as Array<NSDictionary>
+                    
+                    var s:[Log] = []
+                    for dict in resp{
+                        s.append(Log(dict:dict))
+                    }
+                    self.mainQueue.addOperationWithBlock({
+                        callback(s)
+                        if let err = error{
+                            println(err.userInfo)
+                        }
+                    })
+                    
+                }
+            }
         })
         return op
     }

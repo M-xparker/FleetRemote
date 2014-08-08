@@ -18,4 +18,11 @@ struct Log{
     init(message:String){
         self.message = message
     }
+    init(dict:NSDictionary){
+        self.month = dict["month"] as String
+        self.day = dict["day"] as String
+        self.time = dict["time"] as String
+        self.host = dict["host"] as String
+        self.message = dict["log"] as String
+    }
 }

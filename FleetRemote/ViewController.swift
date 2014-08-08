@@ -12,6 +12,7 @@ class ViewController: UIViewController, UITableViewDataSource, UITableViewDelega
                             
     @IBOutlet weak var hostField: UITextField!
     @IBOutlet weak var portField: UITextField!
+    @IBOutlet weak var usernameField: UITextField!
     @IBOutlet weak var updateButton: UIButton!
     @IBOutlet weak var tableView: UITableView!
     var services:[Service]=[]
@@ -21,14 +22,14 @@ class ViewController: UIViewController, UITableViewDataSource, UITableViewDelega
         if !self.portField.text.isEmpty{
             portInt = self.portField.text.toInt()!
         }
-        requester.connectTo(host: self.hostField.text, port: portInt)
+        requester.connectTo(host: self.hostField.text, port: portInt, username:self.usernameField.text)
         requester.services(true, callback: self.updateServices)
     }
     override func viewDidLoad() {
         super.viewDidLoad()
         self.navigationItem.title = "FleetRemote"
 
-        CoreOS.style(self.hostField, self.portField)
+        CoreOS.style(self.hostField, self.portField, self.usernameField)
         CoreOS.style(self.updateButton)
         self.updateButton.backgroundColor = UIColor.coreosBlue()
         

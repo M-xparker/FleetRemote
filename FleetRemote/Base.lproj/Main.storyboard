@@ -30,7 +30,7 @@
                                     <rect key="frame" x="0.0" y="200" width="600" height="600"/>
                                 </variation>
                                 <variation key="heightClass=regular-widthClass=compact" fixedFrame="YES">
-                                    <rect key="frame" x="0.0" y="148" width="320" height="652"/>
+                                    <rect key="frame" x="0.0" y="186" width="320" height="614"/>
                                 </variation>
                             </tableView>
                             <textField opaque="NO" clipsSubviews="YES" contentMode="scaleToFill" contentHorizontalAlignment="left" contentVerticalAlignment="center" borderStyle="roundedRect" placeholder="Address" minimumFontSize="17" translatesAutoresizingMaskIntoConstraints="NO" id="cad-dM-T1N">
@@ -42,6 +42,17 @@
                                 </variation>
                                 <variation key="heightClass=regular-widthClass=compact" fixedFrame="YES">
                                     <rect key="frame" x="16" y="72" width="179" height="30"/>
+                                </variation>
+                            </textField>
+                            <textField opaque="NO" clipsSubviews="YES" contentMode="scaleToFill" contentHorizontalAlignment="left" contentVerticalAlignment="center" borderStyle="roundedRect" placeholder="Username" minimumFontSize="17" translatesAutoresizingMaskIntoConstraints="NO" id="eax-eb-9y5">
+                                <rect key="frame" x="0.0" y="-30" width="97" height="30"/>
+                                <fontDescription key="fontDescription" type="system" pointSize="14"/>
+                                <textInputTraits key="textInputTraits"/>
+                                <variation key="heightClass=regular" fixedFrame="YES">
+                                    <rect key="frame" x="16" y="28" width="345" height="30"/>
+                                </variation>
+                                <variation key="heightClass=regular-widthClass=compact" fixedFrame="YES">
+                                    <rect key="frame" x="16" y="110" width="284" height="30"/>
                                 </variation>
                             </textField>
                             <textField opaque="NO" clipsSubviews="YES" contentMode="scaleToFill" contentHorizontalAlignment="left" contentVerticalAlignment="center" borderStyle="roundedRect" placeholder="Port" minimumFontSize="17" translatesAutoresizingMaskIntoConstraints="NO" id="Sa8-CQ-ucY">
@@ -62,7 +73,7 @@
                                     <color key="titleShadowColor" white="0.5" alpha="1" colorSpace="calibratedWhite"/>
                                 </state>
                                 <variation key="heightClass=regular-widthClass=compact" fixedFrame="YES">
-                                    <rect key="frame" x="16" y="110" width="284" height="30"/>
+                                    <rect key="frame" x="16" y="148" width="284" height="30"/>
                                 </variation>
                                 <connections>
                                     <action selector="updatePressed:" destination="vXZ-lx-hvc" eventType="touchUpInside" id="CUd-H6-xVp"/>
@@ -73,6 +84,7 @@
                         <variation key="default">
                             <mask key="subviews">
                                 <exclude reference="cad-dM-T1N"/>
+                                <exclude reference="eax-eb-9y5"/>
                                 <exclude reference="Sa8-CQ-ucY"/>
                                 <exclude reference="PHv-TR-Ne9"/>
                             </mask>
@@ -85,6 +97,7 @@
                         </variation>
                         <variation key="heightClass=regular-widthClass=compact">
                             <mask key="subviews">
+                                <include reference="eax-eb-9y5"/>
                                 <include reference="PHv-TR-Ne9"/>
                             </mask>
                         </variation>
@@ -97,6 +110,7 @@
                         <outlet property="portField" destination="Sa8-CQ-ucY" id="vHs-7r-Zzh"/>
                         <outlet property="tableView" destination="6kL-uj-Vop" id="rfQ-V6-zoc"/>
                         <outlet property="updateButton" destination="PHv-TR-Ne9" id="fyl-Js-rXH"/>
+                        <outlet property="usernameField" destination="eax-eb-9y5" id="fjK-Al-pzc"/>
                     </connections>
                 </viewController>
                 <placeholder placeholderIdentifier="IBFirstResponder" id="x5A-6p-PRh" sceneMemberID="firstResponder"/>
