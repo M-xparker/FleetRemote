@@ -17,6 +17,8 @@ class ViewController: UIViewController, UITableViewDataSource, UITableViewDelega
     var services:[Service]=[]
     
     @IBAction func updatePressed(sender: UIButton) {
+        requester.connectTo(host: self.hostField.text, port: self.portField.text.toInt()!)
+        requester.services(true, callback: self.updateServices)
     }
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -36,8 +38,6 @@ class ViewController: UIViewController, UITableViewDataSource, UITableViewDelega
         self.tableView.dataSource = self
         self.tableView.delegate = self
         self.automaticallyAdjustsScrollViewInsets = false
-        
-        requester.services(false, self.updateServices)
         // Do any additional setup after loading the view, typically from a nib.
     }
 
