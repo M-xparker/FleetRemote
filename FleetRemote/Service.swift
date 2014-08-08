@@ -13,6 +13,7 @@ struct Service{
     var machine:String = ""
     var ipAddress:String = ""
     var state:String = ""
+    var active:String = ""
     
     init(name:String, state:String){
         self.name = name
@@ -20,5 +21,11 @@ struct Service{
     }
     init(){
         
+    }
+    init(dict:NSDictionary){
+        self.name = dict["unit"] as String
+        self.machine = dict["machine"] as String
+        self.state = dict["state"] as String
+        self.active = dict["active"] as String
     }
 }

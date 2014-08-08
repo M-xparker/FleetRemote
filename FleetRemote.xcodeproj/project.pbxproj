@@ -8,6 +8,7 @@
 
 /* Begin PBXBuildFile section */
 		2BA7CBDEF33A4ECE9126E759 /* libPods.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 16FB20C42C154868810F27AA /* libPods.a */; };
+		55442418199572B6008E42D2 /* SSHRequestor.swift in Sources */ = {isa = PBXBuildFile; fileRef = 55442417199572B6008E42D2 /* SSHRequestor.swift */; };
 		55A0EBB619955E97004075DA /* private_key in Resources */ = {isa = PBXBuildFile; fileRef = 55A0EBB519955E97004075DA /* private_key */; };
 		55C0822D19942CAA005646A4 /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 55C0822C19942CAA005646A4 /* AppDelegate.swift */; };
 		55C0822F19942CAB005646A4 /* ViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 55C0822E19942CAB005646A4 /* ViewController.swift */; };
@@ -36,6 +37,7 @@
 /* Begin PBXFileReference section */
 		16FB20C42C154868810F27AA /* libPods.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = libPods.a; sourceTree = BUILT_PRODUCTS_DIR; };
 		46AE24EB41BA40EABF7A1507 /* Pods.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = Pods.xcconfig; path = Pods/Pods.xcconfig; sourceTree = "<group>"; };
+		55442417199572B6008E42D2 /* SSHRequestor.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = SSHRequestor.swift; sourceTree = "<group>"; };
 		55A0EBB419955D38004075DA /* FleetRemote-Bridging-Header.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = "FleetRemote-Bridging-Header.h"; sourceTree = "<group>"; };
 		55A0EBB519955E97004075DA /* private_key */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = private_key; sourceTree = "<group>"; };
 		55C0822719942CAA005646A4 /* FleetRemote.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = FleetRemote.app; sourceTree = BUILT_PRODUCTS_DIR; };
@@ -85,6 +87,15 @@
 /* End PBXFrameworksBuildPhase section */
 
 /* Begin PBXGroup section */
+		5544241619957263008E42D2 /* Requestors */ = {
+			isa = PBXGroup;
+			children = (
+				55C08249199432B4005646A4 /* Requests.swift */,
+				55442417199572B6008E42D2 /* SSHRequestor.swift */,
+			);
+			name = Requestors;
+			sourceTree = "<group>";
+		};
 		55C0821E19942CAA005646A4 = {
 			isa = PBXGroup;
 			children = (
@@ -111,7 +122,7 @@
 				55A0EBB519955E97004075DA /* private_key */,
 				55C0822C19942CAA005646A4 /* AppDelegate.swift */,
 				55C0822E19942CAB005646A4 /* ViewController.swift */,
-				55C08249199432B4005646A4 /* Requests.swift */,
+				5544241619957263008E42D2 /* Requestors */,
 				55C0823019942CAB005646A4 /* Main.storyboard */,
 				55C0823319942CAB005646A4 /* Images.xcassets */,
 				55C0822A19942CAA005646A4 /* Supporting Files */,
@@ -311,6 +322,7 @@
 				55C0825E19952558005646A4 /* UIExtensions.swift in Sources */,
 				55C0824E19943619005646A4 /* Log.swift in Sources */,
 				55C0822F19942CAB005646A4 /* ViewController.swift in Sources */,
+				55442418199572B6008E42D2 /* SSHRequestor.swift in Sources */,
 				55C08250199484A5005646A4 /* StatusViewController.swift in Sources */,
 				55C0822D19942CAA005646A4 /* AppDelegate.swift in Sources */,
 			);

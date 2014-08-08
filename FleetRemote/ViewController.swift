@@ -17,7 +17,11 @@ class ViewController: UIViewController, UITableViewDataSource, UITableViewDelega
     var services:[Service]=[]
     
     @IBAction func updatePressed(sender: UIButton) {
-        requester.connectTo(host: self.hostField.text, port: self.portField.text.toInt()!)
+        var portInt = 0
+        if !self.portField.text.isEmpty{
+            portInt = self.portField.text.toInt()!
+        }
+        requester.connectTo(host: self.hostField.text, port: portInt)
         requester.services(true, callback: self.updateServices)
     }
     override func viewDidLoad() {
@@ -64,7 +68,7 @@ class ViewController: UIViewController, UITableViewDataSource, UITableViewDelega
         var cell:ServiceCell = self.tableView.dequeueReusableCellWithIdentifier("cell") as ServiceCell
         
         cell.serviceLabel.text = self.services[indexPath.row].name
-        cell.stateLabel.text = self.services[indexPath.row].state
+        cell.activeLabel.text = self.services[indexPath.row].active
         cell.accessoryType = UITableViewCellAccessoryType.DisclosureIndicator
 
         return cell
@@ -85,7 +89,7 @@ class ViewController: UIViewController, UITableViewDataSource, UITableViewDelega
 
 class ServiceCell:UITableViewCell{
     var serviceLabel:UILabel = UILabel()
-    var stateLabel:UILabel = UILabel()
+    var activeLabel:UILabel = UILabel()
     
     required init(coder aDecoder: NSCoder!) {
         super.init(coder: aDecoder)
@@ -94,13 +98,13 @@ class ServiceCell:UITableViewCell{
     override init(style: UITableViewCellStyle, reuseIdentifier: String!) {
         super.init(style: style, reuseIdentifier: reuseIdentifier)
         
-        CoreOS.style(self.serviceLabel,self.stateLabel)
+        CoreOS.style(self.serviceLabel,self.activeLabel)
         
         self.serviceLabel.frame = CGRectMake(20, 0, 100, self.contentView.frame.size.height)
-        self.stateLabel.frame = CGRectMake(self.contentView.frame.size.width - 90, 0, 50, self.contentView.frame.size.height)
-        self.stateLabel.textAlignment = NSTextAlignment.Right
+        self.activeLabel.frame = CGRectMake(self.contentView.frame.size.width - 110, 0, 70, self.contentView.frame.size.height)
+        self.activeLabel.textAlignment = NSTextAlignment.Right
         self.contentView.addSubview(self.serviceLabel)
-        self.contentView.addSubview(self.stateLabel)
+        self.contentView.addSubview(self.activeLabel)
         
     }
 }

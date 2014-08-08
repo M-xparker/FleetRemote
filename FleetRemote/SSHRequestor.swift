@@ -1,36 +1,32 @@
 //
-//  Requests.swift
+//  SSHRequestor.swift
 //  FleetRemote
 //
-//  Created by Matthew Parker on 8/7/14.
+//  Created by Matthew Parker on 8/8/14.
 //  Copyright (c) 2014 MattParker. All rights reserved.
 //
 
 import Foundation
 
-protocol Requestor{
-    func connectTo(host h:String,port p:Int)
-    func services(refresh:Bool,callback:([Service])->Void)
-    func statusForService(serviceName: String, callback:(String)->Void)
-    func logsForService(serviceName: String, callback:([Log])->Void)
-    func disconnect()->Void
-}
-
-var requester:Requestor!
-
-
-
-class MockRequestor: Requestor{
-    
+class SSHRequestor: Requestor{
     private var connected:Bool = false
     let backgroundQueue = NSOperationQueue()
     let mainQueue = NSOperationQueue.mainQueue()
     var host:String = ""
     var port:Int = 0
     
+    private var session:NMSSHSession?
+    
+    init(){
+        
+    }
     
     func connectTo(host h: String, port p: Int) {
-        
+        self.port = p
+        self.host = h
+        session = nil
+        //        let connectOp = self.connectToOperation(host: h, port: p)
+        //        self.backgroundQueue.addOperation(connectOp)
     }
     
     func services(refresh:Bool, callback:([Service])->Void){
@@ -49,22 +45,50 @@ class MockRequestor: Requestor{
         
     }
     
-    func disconnect() {
-        
+    func disconnect(){
+        if let sesh = self.session{
+            sesh.disconnect()
+        }
     }
     
     private func queueOp(op:NSOperation){
-        if !self.connected{
+        if let sesh = self.session{
+            if !sesh.connected{
+                let connectOp = reconnect()
+                op.addDependency(connectOp)
+            }
+        } else{
             let connectOp = reconnect()
             op.addDependency(connectOp)
         }
+        
         self.backgroundQueue.addOperation(op)
     }
     
     private func connectToOperation(host h:String, port p:Int)->NSOperation{
         let op = NSBlockOperation()
         op.addExecutionBlock({
-            self.connected = true
+            if h.isEmpty || p == 0{
+                op.cancel()
+                return
+            }
+            self.session = NMSSHSession.connectToHost(h, port: p, withUsername: "core")
+            if let sesh = self.session{
+                if sesh.connected{
+                    let keyPath = NSBundle.mainBundle().pathForResource("private_key", ofType: nil)
+                    sesh.authenticateByPublicKey(nil, privateKey: keyPath, andPassword: nil)
+                    println("last error", sesh.lastError.userInfo)
+                    if !sesh.authorized{
+                        op.cancel()
+                        return
+                    }
+                    
+                }else{
+                    op.cancel()
+                    return
+                }
+            }
+            
         })
         return op
     }
@@ -78,9 +102,28 @@ class MockRequestor: Requestor{
     private func servicesOperation(callback:([Service])->Void)->NSOperation{
         let op = NSBlockOperation()
         op.addExecutionBlock({
-            self.mainQueue.addOperationWithBlock({
-                callback([Service(name:"test.service", state:"running")])
-            })
+            if let sesh = self.session{
+                
+                if sesh.authorized{
+                    var error:NSError?
+                    var command = "fleetctl list-units | awk 'NR > 2 { printf(\",\") } BEGIN{printf \"[\"}{if (NR!=1) printf(\"{\\\"unit\\\":\\\"%s\\\",\\\"dstate\\\":\\\"%s\\\",\\\"tmachine\\\":\\\"%s\\\",\\\"state\\\":\\\"%s\\\",\\\"machine\\\":\\\"%s\\\",\\\"active\\\":\\\"%s\\\"}\", $1, $2, $3, $4, $5, $6) }END{print \"]\"}'"
+                    let result = sesh.channel.execute(command, error: &error)
+                    self.mainQueue.addOperationWithBlock({
+                        var resp: [NSDictionary] = NSJSONSerialization.JSONObjectWithData(result.dataUsingEncoding(NSUTF8StringEncoding, allowLossyConversion: true), options: NSJSONReadingOptions.MutableContainers, error: &error) as Array<NSDictionary>
+                        
+                        var s:[Service] = []
+                        for dict in resp{
+                            s.append(Service(dict:dict))
+                        }
+                        callback(s)
+                        
+                        if let err = error{
+                            println(err.userInfo)
+                        }
+                    })
+                    
+                }
+            }
         })
         return op
     }
@@ -106,5 +149,4 @@ class MockRequestor: Requestor{
         })
         return op
     }
-    
 }

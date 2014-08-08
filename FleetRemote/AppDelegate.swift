@@ -19,7 +19,7 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
             NSFontAttributeName:CoreOS.fontBoldWithSize(17)
         ]
         UINavigationBar.appearance().tintColor = UIColor.coreosBlue()
-        requester = SSHRequester()
+        requester = SSHRequestor()
         // Override point for customization after application launch.
         return true
     }
