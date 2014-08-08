@@ -15,6 +15,11 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
 
 
     func application(application: UIApplication!, didFinishLaunchingWithOptions launchOptions: NSDictionary!) -> Bool {
+        UINavigationBar.appearance().titleTextAttributes = [
+            NSFontAttributeName:CoreOS.fontBoldWithSize(17)
+        ]
+        UINavigationBar.appearance().tintColor = UIColor.coreosBlue()
+        requester = MockRequester()
         // Override point for customization after application launch.
         return true
     }
