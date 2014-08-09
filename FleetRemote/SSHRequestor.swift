@@ -19,7 +19,7 @@ class SSHRequestor: Requestor{
     private var session:NMSSHSession?
     
     init(){
-        
+        self.backgroundQueue.maxConcurrentOperationCount = 1
     }
     
     func connectTo(host h: String, port p: Int, username u:String) {
@@ -42,6 +42,17 @@ class SSHRequestor: Requestor{
     func logsForService(serviceName: String, callback:([Log])->Void){
         let logsOp = self.logsOperation(serviceName,numberOfLines: 10, callback)
         self.queueOp(logsOp)
+        
+    }
+    
+    func startService(serviceName: String, callback:()->Void){
+        let op = self.startOperation(serviceName,callback)
+        self.queueOp(op)
+        
+    }
+    func stopService(serviceName: String, callback:()->Void){
+        let op = self.stopOperation(serviceName,callback)
+        self.queueOp(op)
         
     }
     
@@ -150,6 +161,49 @@ class SSHRequestor: Requestor{
         })
         return op
     }
+    private func startOperation(serviceName:String,callback:()->Void)->NSOperation{
+        let op = NSBlockOperation()
+        op.addExecutionBlock({
+            if let sesh = self.session{
+                
+                if sesh.authorized{
+                    var error:NSError?
+                    var command = "fleetctl start " + serviceName + " | awk '{if(NR<10)print($0)}'"
+                    let result = sesh.channel.execute(command, error: &error)
+                    self.mainQueue.addOperationWithBlock({
+                        callback()
+                        if let err = error{
+                            println(err.userInfo)
+                        }
+                    })
+                    
+                }
+            }
+        })
+        return op
+    }
+    
+    private func stopOperation(serviceName:String,callback:()->Void)->NSOperation{
+        let op = NSBlockOperation()
+        op.addExecutionBlock({
+            if let sesh = self.session{
+                
+                if sesh.authorized{
+                    var error:NSError?
+                    var command = "fleetctl stop " + serviceName + " | awk '{if(NR<10)print($0)}'"
+                    let result = sesh.channel.execute(command, error: &error)
+                    self.mainQueue.addOperationWithBlock({
+                        callback()
+                        if let err = error{
+                            println(err.userInfo)
+                        }
+                    })
+                    
+                }
+            }
+        })
+        return op
+    }
     
     private func logsOperation(serviceName:String, numberOfLines:Int, callback:([Log])->Void)->NSOperation{
         let op = NSBlockOperation()
@@ -164,7 +218,7 @@ class SSHRequestor: Requestor{
                     
                     var s:[Log] = []
                     for dict in resp{
-                        s.append(Log(dict:dict))
+                        s.insert(Log(dict:dict),atIndex: 0)
                     }
                     self.mainQueue.addOperationWithBlock({
                         callback(s)

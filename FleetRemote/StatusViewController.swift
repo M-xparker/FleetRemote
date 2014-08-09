@@ -19,11 +19,22 @@ class StatusViewController:UIViewController, UITableViewDataSource, UITableViewD
     @IBOutlet weak var startButton: UIButton!
     @IBOutlet weak var tableView: UITableView!
     
+    @IBAction func pressedStart(sender: UIButton) {
+        requester.startService(service.name, callback: {
+            sender.setTitle("Started...", forState: UIControlState.Normal)
+        })
+    }
+    @IBAction func pressedStop(sender: UIButton) {
+        requester.stopService(service.name, callback: {
+            sender.setTitle("Stopped...", forState: UIControlState.Normal)
+        })
+    }
     override func viewDidLoad() {
         super.viewDidLoad()
         self.navigationItem.title = service.name
         requester.statusForService(service.name, self.updateStatus)
-        
+        requester.logsForService(service.name, callback: self.updateLogs)
+
         self.tableView.registerClass(LogCell.self, forCellReuseIdentifier: LogCell.CellIdentifier())
         self.tableView.dataSource = self
         self.tableView.delegate = self
@@ -37,7 +48,6 @@ class StatusViewController:UIViewController, UITableViewDataSource, UITableViewD
     func updateStatus(status:String){
         self.status = status
         self.statusLabel.text = self.status
-        requester.logsForService(service.name, callback: self.updateLogs)
     }
     func updateLogs(logs:[Log]){
         self.logs = logs
@@ -87,14 +97,14 @@ class LogCell:UITableViewCell{
     
     override init(style: UITableViewCellStyle, reuseIdentifier: String!) {
         super.init(style: style, reuseIdentifier: reuseIdentifier)
-        
+        self.tintColor  = UIColor.coreosBlue()
         CoreOS.style(self.monthLabel,self.dayLabel,self.timeLabel,self.message)
         self.monthLabel.frame = CGRectMake(20, 0, 30, self.contentView.frame.size.height)
         self.monthLabel.textAlignment = NSTextAlignment.Center
         self.dayLabel.frame = CGRectMake(self.monthLabel.frame.origin.x + self.monthLabel.frame.size.width, 0, 20, self.contentView.frame.size.height)
         self.dayLabel.textAlignment = NSTextAlignment.Center
         self.timeLabel.frame = CGRectMake(self.dayLabel.frame.origin.x + self.dayLabel.frame.size.width+5, 0, 45, self.contentView.frame.size.height)
-        self.message.frame = CGRectMake(self.timeLabel.frame.origin.x + self.timeLabel.frame.size.width+20, 0, self.contentView.frame.size.width - self.timeLabel.frame.origin.x + self.timeLabel.frame.size.width+20 - 40, self.contentView.frame.size.height)
+        self.message.frame = CGRectMake(self.timeLabel.frame.origin.x + self.timeLabel.frame.size.width+20, 0, 130, self.contentView.frame.size.height)
         self.accessoryType = UITableViewCellAccessoryType.DetailButton
         
         self.addSubviews(self.monthLabel,self.dayLabel,self.timeLabel,self.message)

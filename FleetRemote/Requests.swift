@@ -13,6 +13,8 @@ protocol Requestor{
     func services(refresh:Bool,callback:([Service])->Void)
     func statusForService(serviceName: String, callback:(String)->Void)
     func logsForService(serviceName: String, callback:([Log])->Void)
+    func startService(serviceName: String, callback:()->Void)
+    func stopService(serviceName: String, callback:()->Void)
     func disconnect()->Void
 }
 
@@ -46,6 +48,14 @@ class MockRequestor: Requestor{
     func logsForService(serviceName: String, callback:([Log])->Void){
         let logsOp = self.logsOperation(serviceName,numberOfLines: 10, callback)
         self.queueOp(logsOp)
+        
+    }
+    
+    func startService(serviceName: String, callback: () -> Void) {
+        
+    }
+    
+    func stopService(serviceName: String, callback: () -> Void) {
         
     }
     

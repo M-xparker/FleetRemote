@@ -16,6 +16,7 @@ class ViewController: UIViewController, UITableViewDataSource, UITableViewDelega
     @IBOutlet weak var updateButton: UIButton!
     @IBOutlet weak var tableView: UITableView!
     var services:[Service]=[]
+    var refreshControl = UIRefreshControl()
     
     @IBAction func updatePressed(sender: UIButton) {
         var portInt = 0
@@ -33,10 +34,9 @@ class ViewController: UIViewController, UITableViewDataSource, UITableViewDelega
         CoreOS.style(self.updateButton)
         self.updateButton.backgroundColor = UIColor.coreosBlue()
         
-        let refreshControl = UIRefreshControl()
-        refreshControl.tintColor = UIColor.coreosRed()
+        self.refreshControl.tintColor = UIColor.coreosRed()
         self.tableView.addSubview(refreshControl)
-        refreshControl.addTarget(self, action: "refresh", forControlEvents: UIControlEvents.ValueChanged)
+        self.refreshControl.addTarget(self, action: "refresh", forControlEvents: UIControlEvents.ValueChanged)
         
         
         self.tableView.registerClass(ServiceCell.self, forCellReuseIdentifier: "cell")
@@ -54,6 +54,7 @@ class ViewController: UIViewController, UITableViewDataSource, UITableViewDelega
     func updateServices(services:[Service]){
         self.services = services
         self.tableView.reloadData()
+        self.refreshControl.endRefreshing()
     }
     
     func refresh(){
