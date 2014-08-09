@@ -3,6 +3,7 @@
 iOS Client for CoreOS/Fleet
 
 MIT License
+Separate license for fonts included
 
 #Setup
 1. git clone
