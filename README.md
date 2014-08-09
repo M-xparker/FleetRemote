@@ -2,6 +2,8 @@
 ===========
 iOS Client for CoreOS/Fleet
 
+MIT License
+
 #Setup
 1. git clone
 2. pod install
