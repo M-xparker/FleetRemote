@@ -9,7 +9,7 @@ iOS Client for CoreOS/Fleet
 4. run the app
 
 ##Requirements
-- Xcode 6 Beta 4
+- Xcode 6 Beta 5
 - CocoaPods
 
 ##TODO
