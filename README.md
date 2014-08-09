@@ -13,6 +13,6 @@ iOS Client for CoreOS/Fleet
 - CocoaPods
 
 ##TODO
--Infinite Scroll Logs
--Full log display
--Update status when starting or stopping the service
+- Infinite Scroll Logs
+- Full log display
+- Update status when starting or stopping the service
